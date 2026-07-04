@@ -66,15 +66,44 @@ python -m unittest discover -s tests
 
 ## Package as a standalone app (optional)
 
+PyInstaller cannot cross-compile: you must run the packaging command **on the
+target platform**.
+
+### macOS (.app bundle)
+
+Use the included spec file, which produces a proper macOS `.app` in `dist/`:
+
 ```
-pip install pyinstaller
-pyinstaller --onefile --windowed --name "MRI Ribbon Stitcher" mri_ribbon_stitcher.py
+pip3 install pyinstaller
+pyinstaller "MRI Ribbon Stitcher macOS.spec"
+open dist
 ```
 
-PyInstaller cannot cross-compile: run the command above **on Windows to get the
-.exe** and **on a Mac to get the .app** (output lands in `dist/`). On macOS,
-Gatekeeper blocks unsigned apps on first launch — right-click the app,
-choose *Open*, and confirm. Verify any packaged build with:
+The resulting `dist/MRI Ribbon Stitcher.app` can be dragged to `/Applications`.
+
+**Gatekeeper note:** macOS blocks unsigned apps on first launch.
+Right-click the `.app`, choose *Open*, and confirm in the dialog.
+Subsequent launches work normally.
+
+**Universal binary (Apple Silicon + Intel):** set `target_arch='universal2'`
+in the spec and build on either architecture:
+
+```
+pip3 install pyinstaller
+# edit "MRI Ribbon Stitcher macOS.spec": target_arch=None → target_arch='universal2'
+pyinstaller "MRI Ribbon Stitcher macOS.spec"
+```
+
+### Windows (.exe)
+
+```
+pip install pyinstaller
+pyinstaller "MRI Ribbon Stitcher.spec"
+```
+
+The single-file executable appears in `dist/MRI Ribbon Stitcher`.
+
+Verify any packaged build with:
 
 ```
 "dist/MRI Ribbon Stitcher" --selftest && echo OK
