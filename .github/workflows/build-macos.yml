@@ -1,0 +1,38 @@
+name: Build macOS app
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pillow pyinstaller
+
+      - name: Run tests
+        run: python3 -m unittest discover -s tests
+
+      - name: Build .app bundle
+        run: pyinstaller "MRI Ribbon Stitcher macOS.spec"
+
+      - name: Verify packaged build
+        run: '"dist/MRI Ribbon Stitcher/MRI Ribbon Stitcher" --selftest'
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MRI-Ribbon-Stitcher-macOS
+          path: dist/MRI Ribbon Stitcher.app
